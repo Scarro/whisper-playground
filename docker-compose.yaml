@@ -1,0 +1,12 @@
+version: '3'
+services:
+  react-app:
+    build: interface
+    ports:
+      - "3000:80"
+    links:
+      - flask-server
+  flask-server:
+    build: backend
+    ports:
+      - "8000:8000"
