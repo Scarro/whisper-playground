@@ -1,13 +1,16 @@
 import os
 import tempfile
 import flask
-from flask import request
 from flask_cors import CORS
+from flask import request
 import whisper
 
 app = flask.Flask(__name__)
 CORS(app)
 
+@app.route('/api', methods=['GET'])
+def say_hello():
+    return "Hello world!"
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
@@ -21,6 +24,7 @@ def transcribe():
         audio_model = whisper.load_model(model)
 
         temp_dir = tempfile.mkdtemp()
+        print('temp_dir: ', temp_dir)
         save_path = os.path.join(temp_dir, 'temp.wav')
 
         wav_file = request.files['audio_data']

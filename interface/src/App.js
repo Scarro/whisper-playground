@@ -10,6 +10,8 @@ import { ReactMic } from 'react-mic';
 import axios from "axios";
 import { PulseLoader } from "react-spinners";
 
+import SaySomething from "./SaySomething";
+
 const useStyles = () => ({
   root: {
     display: 'flex',
@@ -40,9 +42,9 @@ const App = ({ classes }) => {
   const [interimTranscribedData, ] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('english');
-  const [selectedModel, setSelectedModel] = useState(1);
-  const [transcribeTimeout, setTranscribeTimout] = useState(5);
+  const [selectedLanguage, setSelectedLanguage] = useState('spanish');
+  const [selectedModel, setSelectedModel] = useState(2);
+  const [transcribeTimeout, setTranscribeTimout] = useState(10);
   const [stopTranscriptionSession, setStopTranscriptionSession] = useState(false);  
 
   const intervalRef = useRef(null);
@@ -56,7 +58,7 @@ const App = ({ classes }) => {
   const selectedModelRef = useRef(selectedModel);
   selectedModelRef.current = selectedModel;
 
-  const supportedLanguages = ['english', 'chinese', 'german', 'spanish', 'russian', 'korean', 'french', 'japanese', 'portuguese', 'turkish', 'polish', 'catalan', 'dutch', 'arabic', 'swedish', 'italian', 'indonesian', 'hindi', 'finnish', 'vietnamese', 'hebrew', 'ukrainian', 'greek', 'malay', 'czech', 'romanian', 'danish', 'hungarian', 'tamil', 'norwegian', 'thai', 'urdu', 'croatian', 'bulgarian', 'lithuanian', 'latin', 'maori', 'malayalam', 'welsh', 'slovak', 'telugu', 'persian', 'latvian', 'bengali', 'serbian', 'azerbaijani', 'slovenian', 'kannada', 'estonian', 'macedonian', 'breton', 'basque', 'icelandic', 'armenian', 'nepali', 'mongolian', 'bosnian', 'kazakh', 'albanian', 'swahili', 'galician', 'marathi', 'punjabi', 'sinhala', 'khmer', 'shona', 'yoruba', 'somali', 'afrikaans', 'occitan', 'georgian', 'belarusian', 'tajik', 'sindhi', 'gujarati', 'amharic', 'yiddish', 'lao', 'uzbek', 'faroese', 'haitian creole', 'pashto', 'turkmen', 'nynorsk', 'maltese', 'sanskrit', 'luxembourgish', 'myanmar', 'tibetan', 'tagalog', 'malagasy', 'assamese', 'tatar', 'hawaiian', 'lingala', 'hausa', 'bashkir', 'javanese', 'sundanese']
+  const supportedLanguages = ['spanish', 'english', 'chinese', 'german', 'russian', 'korean', 'french', 'japanese', 'portuguese', 'turkish', 'polish', 'catalan', 'dutch', 'arabic', 'swedish', 'italian', 'indonesian', 'hindi', 'finnish', 'vietnamese', 'hebrew', 'ukrainian', 'greek', 'malay', 'czech', 'romanian', 'danish', 'hungarian', 'tamil', 'norwegian', 'thai', 'urdu', 'croatian', 'bulgarian', 'lithuanian', 'latin', 'maori', 'malayalam', 'welsh', 'slovak', 'telugu', 'persian', 'latvian', 'bengali', 'serbian', 'azerbaijani', 'slovenian', 'kannada', 'estonian', 'macedonian', 'breton', 'basque', 'icelandic', 'armenian', 'nepali', 'mongolian', 'bosnian', 'kazakh', 'albanian', 'swahili', 'galician', 'marathi', 'punjabi', 'sinhala', 'khmer', 'shona', 'yoruba', 'somali', 'afrikaans', 'occitan', 'georgian', 'belarusian', 'tajik', 'sindhi', 'gujarati', 'amharic', 'yiddish', 'lao', 'uzbek', 'faroese', 'haitian creole', 'pashto', 'turkmen', 'nynorsk', 'maltese', 'sanskrit', 'luxembourgish', 'myanmar', 'tibetan', 'tagalog', 'malagasy', 'assamese', 'tatar', 'hawaiian', 'lingala', 'hausa', 'bashkir', 'javanese', 'sundanese']
 
   const modelOptions = ['tiny', 'base', 'small', 'medium', 'large', 'large-v1']
 
@@ -97,6 +99,8 @@ const App = ({ classes }) => {
   }
 
   function transcribeRecording(recordedBlob) {
+    console.log("transcribeRecording")
+    console.log('recordedBlob is: ', recordedBlob)
     const headers = {
       "content-type": "multipart/form-data",
     };
@@ -104,8 +108,8 @@ const App = ({ classes }) => {
     formData.append("language", selectedLangRef.current)
     formData.append("model_size", modelOptions[selectedModelRef.current])
     formData.append("audio_data", recordedBlob.blob, 'temp_recording');
-    // axios.post("http://0.0.0.0:8000/transcribe", formData, { headers })
-    axios.post("http://flask-server:8000/transcribe", formData, { headers })
+    axios.post("/transcribe", formData, { headers }, { timeout: 300000 })
+    // axios.post("http://flask-server:8000/transcribe", formData, { headers })
       .then((res) => {
         setTranscribedData(oldData => [...oldData, res.data])
         setIsTranscribing(false)
@@ -121,7 +125,7 @@ const App = ({ classes }) => {
     <div className={classes.root}>
       <div className={classes.title}>
         <Typography variant="h3">
-          Whisper Playground <span role="img" aria-label="microphone-emoji">🎤</span>
+          Tito Whisper <span role="img" aria-label="microphone-emoji">🎤</span>
         </Typography>
       </div>
       <div className={classes.settingsSection}>
@@ -142,6 +146,10 @@ const App = ({ classes }) => {
       <div>
         <TranscribeOutput transcribedText={transcribedData} interimTranscribedText={interimTranscribedData} />
         <PulseLoader sizeUnit={"px"} size={20} color="purple" loading={isTranscribing} />
+      </div>
+
+      <div>
+        <SaySomething clase={classes}/>
       </div>
     </div>
   );
